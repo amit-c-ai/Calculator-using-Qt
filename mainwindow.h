@@ -62,10 +62,6 @@ private slots:
 
     void on_percentage_clicked();
 
-    void on_open_clicked();
-
-    void on_close_clicked();
-
     void on_clear_clicked();
 
     void on_back_clicked();
@@ -73,6 +69,12 @@ private slots:
     void on_power_clicked();
 
     void on_output_returnPressed();
+
+    void on_advancedMode_clicked();
+
+    void on_openBracket_clicked();
+
+    void on_closeBracket_clicked();
 
 private:
     Ui::MainWindow *ui;

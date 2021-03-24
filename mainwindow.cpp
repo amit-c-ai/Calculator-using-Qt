@@ -6,6 +6,18 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    ui->openBracket->hide();
+    ui->sin->hide();
+    ui->cos->hide();
+    ui->tan->hide();
+    ui->log->hide();
+    ui->square->hide();
+    ui->closeBracket->hide();
+    ui->asin->hide();
+    ui->acos->hide();
+    ui->atan->hide();
+    ui->ln->hide();
+    ui->mod->hide();
 }
 
 MainWindow::~MainWindow()
@@ -60,7 +72,7 @@ QStack<QString> MainWindow::infix_To_postfix(QStringList tokens)
             }
         }
     }
-    if(!Operator.isEmpty()){
+    while(!Operator.isEmpty()){
         postfix.push(Operator.pop());
     }
     return postfix;
@@ -100,7 +112,7 @@ void MainWindow::calculate(QString screen)
     qDebug()<<postfix;
     double answer = evaluate(postfix);
     qDebug()<<answer;
-    ui->output->setText(QString::number(answer,'g',100));
+    ui->output->setText(QString::number(answer,'g',10));
 }
 
 double MainWindow::evaluate(QStack<QString> postfix)
@@ -253,14 +265,13 @@ void MainWindow::on_percentage_clicked()
     ui->output->setText(temp);
 }
 
-void MainWindow::on_open_clicked()
+void MainWindow::on_openBracket_clicked()
 {
     QString temp;
     temp= ui->output->text() + "(";
     ui->output->setText(temp);
 }
-
-void MainWindow::on_close_clicked()
+void MainWindow::on_closeBracket_clicked()
 {
     QString temp;
     temp= ui->output->text() + ")";
@@ -294,3 +305,38 @@ void MainWindow::on_output_returnPressed()
 {
     on_calculate_clicked();
 }
+
+void MainWindow::on_advancedMode_clicked()
+{
+    if(ui->advancedMode->text() == "Basic Mode"){
+        ui->advancedMode->setText("Advanced Mode");
+                ui->openBracket->hide();
+                ui->sin->hide();
+                ui->cos->hide();
+                ui->tan->hide();
+                ui->log->hide();
+                ui->square->hide();
+                ui->closeBracket->hide();
+                ui->asin->hide();
+                ui->acos->hide();
+                ui->atan->hide();
+                ui->ln->hide();
+                ui->mod->hide();
+    }
+    else if(ui->advancedMode->text() =="Advanced Mode"){
+        ui->advancedMode->setText("Basic Mode");
+        ui->openBracket->show();
+        ui->sin->show();
+        ui->cos->show();
+        ui->tan->show();
+        ui->log->show();
+        ui->square->show();
+        ui->closeBracket->show();
+        ui->asin->show();
+        ui->acos->show();
+        ui->atan->show();
+        ui->ln->show();
+        ui->mod->show();
+    }
+}
+
