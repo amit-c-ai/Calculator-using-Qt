@@ -76,6 +76,10 @@ private slots:
 
     void on_closeBracket_clicked();
 
+    void on_piConstant_clicked();
+
+    void on_eConstant_clicked();
+
 private:
     Ui::MainWindow *ui;
 };

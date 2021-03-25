@@ -61,17 +61,21 @@ QStack<QString> MainWindow::infix_To_postfix(QStringList tokens)
         if(!isOperator(tokens[i]))
             postfix.push(tokens[i]);
         else{
-            if(Operator.isEmpty())
+            if(Operator.isEmpty() || tokens[i]=="(")
                 Operator.push(tokens[i].at(0));
-            else if(precedence(tokens[i].at(0)) > precedence(Operator.last()))
+            else if(tokens[i]==")"){
+                    while(Operator.last()!="(")
+                        postfix.push(Operator.pop());
+                   Operator.pop();
+                }
+            else if(precedence(tokens[i].at(0)) > precedence(Operator.last()) || Operator.last()=="(")
                 Operator.push(tokens[i].at(0));
             else if(precedence(tokens[i].at(0)) <= precedence(Operator.last())){
                 postfix.push(Operator.pop());
-//                Operator.push(tokens[i].at(0));
                 i--;
+               }
             }
         }
-    }
     while(!Operator.isEmpty()){
         postfix.push(Operator.pop());
     }
@@ -80,7 +84,7 @@ QStack<QString> MainWindow::infix_To_postfix(QStringList tokens)
 
 bool MainWindow::isOperator(QString op){
 
-    if(op=='+' || op=='-' || op=='*' || op=='/' || op=='^' || op=='%')
+    if(op=='+' || op=='-' || op=='*' || op=='/' || op=='^' || op=='%' || op=='(' || op==')')
         return true;
     return false;
 }
@@ -101,6 +105,9 @@ QStringList MainWindow::seperateTokens(QString input)
     }
     if(!temp.isEmpty())
        tokens.append(temp);
+    tokens.removeAll("");
+//    if(!isOperator(tokens[tokens.indexOf("(",0)-1]))
+
     return tokens;
 }
 
@@ -301,6 +308,20 @@ void MainWindow::on_power_clicked()
     ui->output->setText(temp);
 }
 
+void MainWindow::on_piConstant_clicked()
+{
+    QString temp;
+    temp= ui->output->text() + "3.14";
+    ui->output->setText(temp);
+}
+
+void MainWindow::on_eConstant_clicked()
+{
+    QString temp;
+    temp= ui->output->text() + "2.72";
+    ui->output->setText(temp);
+}
+
 void MainWindow::on_output_returnPressed()
 {
     on_calculate_clicked();
@@ -339,4 +360,6 @@ void MainWindow::on_advancedMode_clicked()
         ui->mod->show();
     }
 }
+
+
 
