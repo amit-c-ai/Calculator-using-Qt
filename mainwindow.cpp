@@ -89,12 +89,12 @@ bool MainWindow::isOperator(QString op){
     return false;
 }
 
-QStringList MainWindow::seperateTokens(QString input)
+QStringList MainWindow::seperateTokens(QString input)//2*-1
 {
     QStringList tokens;
     QString temp;
     for(int i=0; i<input.length(); i++){
-        if((input[i]>='0' && input[i]<='9') || (i==0 && (input[i]=='+' || input[i]=='-')) || input[i]=='.'){
+        if((input[i]>='0' && input[i]<='9') || (i==0 && (input[i]=='+' || input[i]=='-')) || input[i]=='.' || input[i]=='e' || input[i]=="π"){
             temp+=input[i];
         }
         else if(isOperator(QString(input[i]))){
@@ -105,8 +105,21 @@ QStringList MainWindow::seperateTokens(QString input)
     }
     if(!temp.isEmpty())
        tokens.append(temp);
+
     tokens.removeAll("");
-//    if(!isOperator(tokens[tokens.indexOf("(",0)-1]))
+
+    if(tokens.contains("(")){
+        for(int i=1; i<tokens.length(); i++){
+            if((tokens[i]=="(" && !isOperator(tokens[i-1])) || (tokens[i]=="(" && tokens[i-1]==")")){
+                tokens.insert(i,"*");
+            }
+        }
+    }
+
+    while(tokens.contains("π"))
+        tokens.replace(tokens.indexOf("π"),QString::number(M_PI));
+    while(tokens.contains("e"))
+        tokens.replace(tokens.indexOf("e"),QString::number(M_E));
 
     return tokens;
 }
@@ -311,14 +324,21 @@ void MainWindow::on_power_clicked()
 void MainWindow::on_piConstant_clicked()
 {
     QString temp;
-    temp= ui->output->text() + "3.14";
+    temp= ui->output->text() + "π";
     ui->output->setText(temp);
 }
-
+#include<math.h>
 void MainWindow::on_eConstant_clicked()
 {
     QString temp;
-    temp= ui->output->text() + "2.72";
+    temp= ui->output->text() + "e";
+    ui->output->setText(temp);
+}
+
+void MainWindow::on_reciprocal_clicked()
+{
+    QString temp;
+    temp= ui->output->text() + "^(-1)";
     ui->output->setText(temp);
 }
 
@@ -360,6 +380,7 @@ void MainWindow::on_advancedMode_clicked()
         ui->mod->show();
     }
 }
+
 
 
 

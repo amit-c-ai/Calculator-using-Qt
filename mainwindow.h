@@ -80,6 +80,8 @@ private slots:
 
     void on_eConstant_clicked();
 
+    void on_reciprocal_clicked();
+
 private:
     Ui::MainWindow *ui;
 };
