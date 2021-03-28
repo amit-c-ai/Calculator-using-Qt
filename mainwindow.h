@@ -21,7 +21,8 @@ public:
     QString screen;
     int precedence(QChar op);
     QStack<QString> infix_To_postfix(QStringList input);
-    bool isOperator(QString op);
+    bool isBOperator(QString op);
+    bool isUOperator(QString op);
     QStringList seperateTokens(QString input);
     void calculate(QString screen);
     double evaluate(QStack<QString> postfix);
@@ -81,6 +82,8 @@ private slots:
     void on_eConstant_clicked();
 
     void on_reciprocal_clicked();
+
+    void on_root_clicked();
 
 private:
     Ui::MainWindow *ui;

@@ -58,7 +58,7 @@ QStack<QString> MainWindow::infix_To_postfix(QStringList tokens)
     QStack<QChar> Operator;
     QStack<QString> postfix;
     for(int i=0; i<tokens.length(); i++){
-        if(!isOperator(tokens[i]))
+        if(!isBOperator(tokens[i]))
             postfix.push(tokens[i]);
         else{
             if(Operator.isEmpty() || tokens[i]=="(")
@@ -82,9 +82,16 @@ QStack<QString> MainWindow::infix_To_postfix(QStringList tokens)
     return postfix;
 }
 
-bool MainWindow::isOperator(QString op){
+bool MainWindow::isBOperator(QString op){
 
     if(op=='+' || op=='-' || op=='*' || op=='/' || op=='^' || op=='%' || op=='(' || op==')')
+        return true;
+    return false;
+}
+
+bool MainWindow::isUOperator(QString op)
+{
+    if(op=="sin" || op=="cos" || op=="tan" || op=="log" || op=="ln" || op=="asin" || op=="acos" || op=="atan")
         return true;
     return false;
 }
@@ -97,10 +104,17 @@ QStringList MainWindow::seperateTokens(QString input)//2*-1
         if((input[i]>='0' && input[i]<='9') || (i==0 && (input[i]=='+' || input[i]=='-')) || input[i]=='.' || input[i]=='e' || input[i]=="π"){
             temp+=input[i];
         }
-        else if(isOperator(QString(input[i]))){
+        else if(isBOperator(QString(input[i]))){
+            if(isBOperator(QString(input[i-1])) && input[i]!='(' && input[i-1]!=')'){
+                temp+=input[i];
+                continue;
+            }
             tokens.append(temp);
             tokens.append(QString(input[i]));
             temp.clear();
+        }
+        else if(isUOperator(QString(input[i]))){
+
         }
     }
     if(!temp.isEmpty())
@@ -110,7 +124,7 @@ QStringList MainWindow::seperateTokens(QString input)//2*-1
 
     if(tokens.contains("(")){
         for(int i=1; i<tokens.length(); i++){
-            if((tokens[i]=="(" && !isOperator(tokens[i-1])) || (tokens[i]=="(" && tokens[i-1]==")")){
+            if((tokens[i]=="(" && !isBOperator(tokens[i-1])) || (tokens[i]=="(" && tokens[i-1]==")")){
                 tokens.insert(i,"*");
             }
         }
@@ -139,7 +153,7 @@ double MainWindow::evaluate(QStack<QString> postfix)
 {
     QStack<double> evalStack;
     for(int i=0; i<postfix.length(); i++){
-        if(!isOperator(postfix[i])){
+        if(!isBOperator(postfix[i])){
             evalStack.push(postfix[i].toDouble());
         }
         else{
@@ -342,6 +356,13 @@ void MainWindow::on_reciprocal_clicked()
     ui->output->setText(temp);
 }
 
+void MainWindow::on_root_clicked()
+{
+    QString temp;
+    temp= ui->output->text() + "^(0.5)";
+    ui->output->setText(temp);
+}
+
 void MainWindow::on_output_returnPressed()
 {
     on_calculate_clicked();
@@ -380,6 +401,7 @@ void MainWindow::on_advancedMode_clicked()
         ui->mod->show();
     }
 }
+
 
 
 
