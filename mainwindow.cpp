@@ -6,18 +6,22 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    ui->history->setTextColor(QColor(113,113,113));
     ui->openBracket->hide();
     ui->sin->hide();
     ui->cos->hide();
     ui->tan->hide();
     ui->log->hide();
-    ui->square->hide();
+    ui->factorial->hide();
     ui->closeBracket->hide();
     ui->asin->hide();
     ui->acos->hide();
     ui->atan->hide();
     ui->ln->hide();
     ui->mod->hide();
+
+    sound=new QMediaPlayer;
+    sound->setMedia(QMediaContent(QUrl("qrc:/soft.mp3")));
 }
 
 MainWindow::~MainWindow()
@@ -25,20 +29,24 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-QString toString(const double myLongDouble)
+long MainWindow::factorial(int n)
 {
-  std::stringstream ss;
-  ss << myLongDouble;
-
-  return QString::fromStdString(ss.str());
+    if (n == 0)
+      return 1;
+    else
+      return(n * factorial(n-1));
 }
 
-int MainWindow::precedence(QChar op)
+
+int MainWindow::precedence(QString op)
 {
 
 //    if(op=='(' || op==')'){
 //        return 4;
 //    }
+    if(isUOperator(op))
+        return 5;
+
     if(op=='^' ){
         return 3;
     }
@@ -53,24 +61,44 @@ int MainWindow::precedence(QChar op)
         return -1;
 }
 
+void MainWindow::tokenReplacer(QStringList *original)
+{
+    original->removeAll("");
+    if(original->contains("(")){
+        for(int i=1; i<original->length(); i++){
+            if((original->at(i)=="(" && !isBOperator(original->at(i-1)) && !isUOperator(original->at(i-1))) || (original->at(i)=="(" && original->at(i-1)==")")){
+                original->insert(i,"*");
+            }
+            else if(isUOperator(original->at(i)) && (!isBOperator(original->at(i-1)) && !isUOperator(original->at(i-1))))
+                original->insert(i,"*");
+        }
+    }
+
+    while(original->contains("π"))
+        original->replace(original->indexOf("π"),QString::number(M_PI));
+    while(original->contains("e"))
+        original->replace(original->indexOf("e"),QString::number(M_E));
+
+}
+
 QStack<QString> MainWindow::infix_To_postfix(QStringList tokens)
 {
-    QStack<QChar> Operator;
+    QStack<QString> Operator;
     QStack<QString> postfix;
     for(int i=0; i<tokens.length(); i++){
-        if(!isBOperator(tokens[i]))
+        if(!isBOperator(tokens[i]) && !isUOperator(tokens[i]))
             postfix.push(tokens[i]);
         else{
-            if(Operator.isEmpty() || tokens[i]=="(")
-                Operator.push(tokens[i].at(0));
+            if(Operator.isEmpty() || tokens[i]=="(" || isUOperator(tokens[i]))
+                Operator.push(tokens[i]);
             else if(tokens[i]==")"){
                     while(Operator.last()!="(")
                         postfix.push(Operator.pop());
                    Operator.pop();
                 }
-            else if(precedence(tokens[i].at(0)) > precedence(Operator.last()) || Operator.last()=="(")
-                Operator.push(tokens[i].at(0));
-            else if(precedence(tokens[i].at(0)) <= precedence(Operator.last())){
+            else if(precedence(tokens[i]) > precedence(Operator.last()) || Operator.last()=="(")
+                Operator.push(tokens[i]);
+            else if(precedence(tokens[i]) <= precedence(Operator.last())){
                 postfix.push(Operator.pop());
                 i--;
                }
@@ -91,7 +119,21 @@ bool MainWindow::isBOperator(QString op){
 
 bool MainWindow::isUOperator(QString op)
 {
-    if(op=="sin" || op=="cos" || op=="tan" || op=="log" || op=="ln" || op=="asin" || op=="acos" || op=="atan")
+    if(op=="sin" || op=="cos" || op=="tan" || op=="log" || op=="ln" || op=="asin" || op=="acos" || op=="atan" || op=="fact" || op=="sqrt")
+        return true;
+    return false;
+}
+
+bool MainWindow::isDigit(QChar c)
+{
+    if(c>='0' && c<='9')
+        return true;
+    return false;
+}
+
+bool MainWindow::isAlphabet(QChar c)
+{
+    if(c>='a' && c<='z')
         return true;
     return false;
 }
@@ -101,7 +143,14 @@ QStringList MainWindow::seperateTokens(QString input)//2*-1
     QStringList tokens;
     QString temp;
     for(int i=0; i<input.length(); i++){
-        if((input[i]>='0' && input[i]<='9') || (i==0 && (input[i]=='+' || input[i]=='-')) || input[i]=='.' || input[i]=='e' || input[i]=="π"){
+        if(isDigit(input[i]) || (i==0 && (input[i]=='+' || input[i]=='-')) || input[i]=='.' || input[i]=='e' || input[i]=="π"){
+            temp+=input[i];
+        }
+        else if(isAlphabet(input[i])){
+            if(!isAlphabet(input[i-1])){
+                tokens.append(temp);
+                temp.clear();
+            }
             temp+=input[i];
         }
         else if(isBOperator(QString(input[i]))){
@@ -113,6 +162,7 @@ QStringList MainWindow::seperateTokens(QString input)//2*-1
             tokens.append(QString(input[i]));
             temp.clear();
         }
+
         else if(isUOperator(QString(input[i]))){
 
         }
@@ -120,25 +170,12 @@ QStringList MainWindow::seperateTokens(QString input)//2*-1
     if(!temp.isEmpty())
        tokens.append(temp);
 
-    tokens.removeAll("");
-
-    if(tokens.contains("(")){
-        for(int i=1; i<tokens.length(); i++){
-            if((tokens[i]=="(" && !isBOperator(tokens[i-1])) || (tokens[i]=="(" && tokens[i-1]==")")){
-                tokens.insert(i,"*");
-            }
-        }
-    }
-
-    while(tokens.contains("π"))
-        tokens.replace(tokens.indexOf("π"),QString::number(M_PI));
-    while(tokens.contains("e"))
-        tokens.replace(tokens.indexOf("e"),QString::number(M_E));
+    tokenReplacer(&tokens);
 
     return tokens;
 }
 
-void MainWindow::calculate(QString screen)
+double MainWindow::calculate(QString screen)
 {
     QStringList tokens = seperateTokens(screen);
     qDebug()<<tokens;
@@ -147,21 +184,23 @@ void MainWindow::calculate(QString screen)
     double answer = evaluate(postfix);
     qDebug()<<answer;
     ui->output->setText(QString::number(answer,'g',10));
+    return answer;
 }
 
 double MainWindow::evaluate(QStack<QString> postfix)
 {
     QStack<double> evalStack;
     for(int i=0; i<postfix.length(); i++){
-        if(!isBOperator(postfix[i])){
+        if(!isBOperator(postfix[i]) && !isUOperator(postfix[i])){
             evalStack.push(postfix[i].toDouble());
         }
-        else{
+        else if(isBOperator(postfix[i])){
             double operand_2 = evalStack.pop();
             double operand_1 = evalStack.pop();
             qDebug()<<operand_1<<operand_2;
             double answer;
             QString op = postfix[i];
+
             if(op=='+')
                 answer = operand_1 + operand_2;
             else if(op=='-')
@@ -172,6 +211,36 @@ double MainWindow::evaluate(QStack<QString> postfix)
                 answer = operand_1 / operand_2;
             else if(op=='^')
                 answer = pow(operand_1, operand_2);
+
+            evalStack.push(answer);
+        }
+
+        else if(isUOperator(postfix[i])){
+            double operand_1 = evalStack.pop();
+            qDebug()<<operand_1;
+            double answer;
+            QString op = postfix[i];
+            if(op=="sin")
+                answer = qSin(isdegrees ? operand_1*M_PI/180.0 : operand_1);
+            else if(op=="cos")
+                answer = qCos(isdegrees ? operand_1*M_PI/180.0 : operand_1);
+            else if(op=="tan")
+                answer = qTan(isdegrees ? operand_1*M_PI/180.0 : operand_1);
+            else if(op=="asin")
+                answer = qAsin(operand_1);
+            else if(op=="acos")
+                answer = qAcos(operand_1);
+            else if(op=="atan")
+                answer = qAtan(operand_1);
+            else if(op=="log")
+                answer = log10(operand_1);
+            else if(op=="ln")
+                answer = qLn(operand_1);
+            else if(op=="sqrt")
+                answer = qSqrt(operand_1);
+            else if(op=="fact")
+                answer = factorial((int)operand_1);//fix 1.5 factorial with error msg
+
             evalStack.push(answer);
         }
     }
@@ -182,202 +251,201 @@ double MainWindow::evaluate(QStack<QString> postfix)
 
 void MainWindow::on_calculate_clicked()
 {
-    screen = ui->output->text();
-    calculate(screen);
+        screen = ui->output->text();
+        calculate(screen);
+        ui->history->insertPlainText(screen+"="+ui->output->text()+"\n");
+
+        if(sound->media()!=QMediaContent(QUrl("qrc:/soft.mp3")))
+            sound->setMedia(QMediaContent(QUrl("qrc:/soft.mp3")));
+        sound->play();
+
+}
+
+void MainWindow::setText(QString text, int posIncrement=1)
+{
+    sound->setPosition(0);
+    if(sound->media()!=QMediaContent(QUrl("qrc:/soft.mp3")))
+    sound->setMedia(QMediaContent(QUrl("qrc:/soft.mp3")));
+
+    QString temp;
+    int cPos = ui->output->cursorPosition();
+    temp= ui->output->text();
+    temp = temp.mid(0,cPos)+text+temp.mid(cPos,-1);
+    ui->output->setText(temp);
+    ui->output->setCursorPosition(cPos+posIncrement);
+    ui->output->setFocus();
 }
 
 void MainWindow::on_add_clicked()
 {
-    QString temp;
-    temp= ui->output->text() + "+";
-    ui->output->setText(temp);
+    setText("+");sound->play();
 }
 
 void MainWindow::on_one_clicked()
 {
-    QString temp;
-    temp= ui->output->text() + "1";
-    ui->output->setText(temp);
-
+  setText("1");sound->play();
 }
 
 void MainWindow::on_two_clicked()
 {
-    QString temp;
-    temp= ui->output->text() + "2";
-    ui->output->setText(temp);
+    setText("2");sound->play();
 }
 
 void MainWindow::on_three_clicked()
 {
-    QString temp;
-    temp= ui->output->text() + "3";
-    ui->output->setText(temp);
+    setText("3");sound->play();
 }
 
 void MainWindow::on_four_clicked()
 {
-    QString temp;
-    temp= ui->output->text() + "4";
-    ui->output->setText(temp);
+    setText("4");sound->play();
 }
 
 void MainWindow::on_five_clicked()
 {
-    QString temp;
-    temp= ui->output->text() + "5";
-    ui->output->setText(temp);
+    setText("5");sound->play();
 }
 
 void MainWindow::on_six_clicked()
 {
-    QString temp;
-    temp= ui->output->text() + "6";
-    ui->output->setText(temp);
+    setText("6");sound->play();
 }
 
 void MainWindow::on_seven_clicked()
 {
-    QString temp;
-    temp= ui->output->text() + "7";
-    ui->output->setText(temp);
+    setText("7");sound->play();
 }
 
 void MainWindow::on_eight_clicked()
 {
-    QString temp;
-    temp= ui->output->text() + "8";
-    ui->output->setText(temp);
+    setText("8");sound->play();
 }
 
 void MainWindow::on_nine_clicked()
 {
-    QString temp;
-    temp= ui->output->text() + "9";
-    ui->output->setText(temp);
+    setText("9");sound->play();
 }
 
 void MainWindow::on_zero_clicked()
 {
-    QString temp;
-    temp= ui->output->text() + "0";
-    ui->output->setText(temp);
+    setText("0");sound->play();
 }
 
 void MainWindow::on_dot_clicked()
 {
-    QString temp;
-    temp= ui->output->text() + ".";
-    ui->output->setText(temp);
+    setText(".");sound->play();
 }
 
 void MainWindow::on_multiply_clicked()
 {
-    QString temp;
-    temp= ui->output->text() + "*";
-    ui->output->setText(temp);
+    setText("*");sound->play();
 }
 
 void MainWindow::on_minus_clicked()
 {
-    QString temp;
-    temp= ui->output->text() + "-";
-    ui->output->setText(temp);
+    setText("-");sound->play();
 }
 
 void MainWindow::on_divide_clicked()
 {
-    QString temp;
-    temp= ui->output->text() + "/";
-    ui->output->setText(temp);
+   setText("/");sound->play();
 }
 
 void MainWindow::on_percentage_clicked()
 {
-    QString temp;
-    temp= ui->output->text() + "%";
-    ui->output->setText(temp);
+    setText("%");sound->play();
 }
 
 void MainWindow::on_openBracket_clicked()
 {
-    QString temp;
-    temp= ui->output->text() + "(";
-    ui->output->setText(temp);
+    setText("()");sound->play();
 }
 void MainWindow::on_closeBracket_clicked()
 {
-    QString temp;
-    temp= ui->output->text() + ")";
-    ui->output->setText(temp);
+//    QString temp;
+//    temp= ui->output->text() + ")";
+//    ui->output->setText(temp);
 }
 
 void MainWindow::on_clear_clicked()
 {
-    screen = ui->output->text();
-    screen = screen.remove(0,screen.length());
-    ui->output->setText(screen);
+    if(sound->media()!=QMediaContent(QUrl("qrc:/soft.mp3")))
+    sound->setMedia(QMediaContent(QUrl("qrc:/soft.mp3")));
+    sound->play();
+    ui->output->clear();
 }
 
 void MainWindow::on_back_clicked()
 {
     screen=ui->output->text();
-    screen = screen.remove(screen.length()-1,1);
+    int cPos = ui->output->cursorPosition();
+    screen = screen.remove(cPos-1,1);
     ui->output->setText(screen);
+    ui->output->setCursorPosition(cPos-1);
+    ui->output->setFocus();
+    sound->play();
 }
 
 
 
 void MainWindow::on_power_clicked()
 {
-    QString temp;
-    temp= ui->output->text() + "^";
-    ui->output->setText(temp);
+    setText("^");sound->play();
 }
 
 void MainWindow::on_piConstant_clicked()
 {
-    QString temp;
-    temp= ui->output->text() + "π";
-    ui->output->setText(temp);
+    setText("π");sound->play();
 }
-#include<math.h>
+
 void MainWindow::on_eConstant_clicked()
 {
-    QString temp;
-    temp= ui->output->text() + "e";
-    ui->output->setText(temp);
+    setText("e");sound->play();
 }
 
 void MainWindow::on_reciprocal_clicked()
 {
-    QString temp;
-    temp= ui->output->text() + "^(-1)";
-    ui->output->setText(temp);
+    setText("^(-1)", 5);sound->play();
 }
 
 void MainWindow::on_root_clicked()
 {
-    QString temp;
-    temp= ui->output->text() + "^(0.5)";
-    ui->output->setText(temp);
+    setText("sqrt()", 5);sound->play();
+}
+
+void MainWindow::on_sin_clicked()
+{
+    setText("sin()", 4);sound->play();
+}
+
+void MainWindow::on_cos_clicked()
+{
+    setText("cos()", 4);sound->play();
+}
+
+void MainWindow::on_tan_clicked()
+{
+    setText("tan()", 4);sound->play();
 }
 
 void MainWindow::on_output_returnPressed()
 {
-    on_calculate_clicked();
+    on_calculate_clicked();sound->play();
 }
 
 void MainWindow::on_advancedMode_clicked()
 {
     if(ui->advancedMode->text() == "Basic Mode"){
+        if(sound->media()!=QMediaContent(QUrl("qrc:/basic.mp3")))
+        sound->setMedia(QMediaContent(QUrl("qrc:/basic.mp3")));
+        sound->play();
         ui->advancedMode->setText("Advanced Mode");
                 ui->openBracket->hide();
                 ui->sin->hide();
                 ui->cos->hide();
                 ui->tan->hide();
                 ui->log->hide();
-                ui->square->hide();
+                ui->factorial->hide();
                 ui->closeBracket->hide();
                 ui->asin->hide();
                 ui->acos->hide();
@@ -386,13 +454,16 @@ void MainWindow::on_advancedMode_clicked()
                 ui->mod->hide();
     }
     else if(ui->advancedMode->text() =="Advanced Mode"){
+        if(sound->media()!=QMediaContent(QUrl("qrc:/advanced.mp3")))
+        sound->setMedia(QMediaContent(QUrl("qrc:/advanced.mp3")));
+        sound->play();
         ui->advancedMode->setText("Basic Mode");
         ui->openBracket->show();
         ui->sin->show();
         ui->cos->show();
         ui->tan->show();
         ui->log->show();
-        ui->square->show();
+        ui->factorial->show();
         ui->closeBracket->show();
         ui->asin->show();
         ui->acos->show();
@@ -402,7 +473,56 @@ void MainWindow::on_advancedMode_clicked()
     }
 }
 
+void MainWindow::on_asin_clicked()
+{
+    setText("asin()", 5);sound->play();
+}
+
+void MainWindow::on_acos_clicked()
+{
+    setText("acos()", 5);sound->play();
+}
+
+void MainWindow::on_atan_clicked()
+{
+   setText("atan()", 5);sound->play();
+}
+
+void MainWindow::on_ln_clicked()
+{
+    setText("ln()", 3);sound->play();
+}
+
+void MainWindow::on_log_clicked()
+{
+    setText("log()", 4);sound->play();
+}
+
+void MainWindow::on_factorial_clicked()
+{
+    setText("fact()", 5);sound->play();
+}
+
+void MainWindow::on_square_clicked()
+{
+    setText("^2", 2);sound->play();
+}
 
 
 
+void MainWindow::on_horizontalSlider_valueChanged(int value)
+{
+    setWindowOpacity(value/100.0);
+}
 
+void MainWindow::on_degrees_toggled(bool checked)
+{
+    if(checked)
+        isdegrees=1;
+}
+
+void MainWindow::on_radians_toggled(bool checked)
+{
+    if(checked)
+        isdegrees=0;
+}

@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>advanced.mp3</file>
+        <file>soft.mp3</file>
+        <file>basic.mp3</file>
+    </qresource>
+</RCC>
