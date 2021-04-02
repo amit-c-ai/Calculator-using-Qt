@@ -276,6 +276,21 @@ void MainWindow::setText(QString text, int posIncrement=1)
     ui->output->setFocus();
 }
 
+void MainWindow::setTextProg(QString text, int posIncrement=1)
+{
+    sound->setPosition(0);
+    if(sound->media()!=QMediaContent(QUrl("qrc:/soft.mp3")))
+    sound->setMedia(QMediaContent(QUrl("qrc:/soft.mp3")));
+
+    QString temp;
+    int cPos = ui->output_prog->cursorPosition();
+    temp= ui->output_prog->text();
+    temp = temp.mid(0,cPos)+text+temp.mid(cPos,-1);
+    ui->output_prog->setText(temp);
+    ui->output_prog->setCursorPosition(cPos+posIncrement);
+    ui->output_prog->setFocus();
+}
+
 void MainWindow::on_add_clicked()
 {
     setText("+");sound->play();
@@ -525,4 +540,224 @@ void MainWindow::on_radians_toggled(bool checked)
 {
     if(checked)
         isdegrees=0;
+}
+
+void MainWindow::on_comboBox_activated(int index)
+{
+    ui->stackedWidget->setCurrentIndex(index);
+
+}
+
+void MainWindow::on_and_prog_clicked()
+{
+    setTextProg("AND");sound->play();
+}
+
+void MainWindow::on_or_prog_clicked()
+{
+    setTextProg("OR");sound->play();
+}
+
+void MainWindow::on_not_prog_clicked()
+{
+    setTextProg("NOT");sound->play();
+}
+
+void MainWindow::on_nand_prog_clicked()
+{
+    setTextProg("NAND");sound->play();
+}
+
+void MainWindow::on_nor_prog_clicked()
+{
+    setTextProg("NOR");sound->play();
+}
+
+void MainWindow::on_exor_prog_clicked()
+{
+    setTextProg("XOR");sound->play();
+}
+
+void MainWindow::on_a_prog_clicked()
+{
+    setTextProg("A");sound->play();
+}
+
+void MainWindow::on_b_prog_clicked()
+{
+    setTextProg("B");sound->play();
+}
+
+void MainWindow::on_c_prog_clicked()
+{
+    setTextProg("C");sound->play();
+}
+
+void MainWindow::on_d_prog_clicked()
+{
+    setTextProg("D");sound->play();
+}
+
+void MainWindow::on_e_prog_clicked()
+{
+    setTextProg("E");sound->play();
+}
+
+void MainWindow::on_f_prog_clicked()
+{
+   setTextProg("F");sound->play();
+}
+
+void MainWindow::on_clear_prog_clicked()
+{
+    if(sound->media()!=QMediaContent(QUrl("qrc:/soft.mp3")))
+    sound->setMedia(QMediaContent(QUrl("qrc:/soft.mp3")));
+    sound->play();
+    ui->output_prog->clear();
+}
+
+void MainWindow::on_back_prog_clicked()
+{
+
+}
+
+void MainWindow::on_add_prog_clicked()
+{
+    setTextProg("+");sound->play();
+}
+
+void MainWindow::on_minus_prog_clicked()
+{
+    setTextProg("-");sound->play();
+}
+
+void MainWindow::on_multiply_prog_clicked()
+{
+    setTextProg("*");sound->play();
+}
+
+void MainWindow::on_divide_prog_clicked()
+{
+    setTextProg("/");sound->play();
+}
+
+void MainWindow::on_openBracket_prog_clicked()
+{
+    setTextProg("()");sound->play();
+}
+
+void MainWindow::on_closeBracket_prog_clicked()
+{
+    setTextProg(")");sound->play();
+}
+
+void MainWindow::on_left_shift_prog_clicked()
+{
+
+}
+
+void MainWindow::on_right_shift_prog_clicked()
+{
+
+}
+
+void MainWindow::on_one_prog_clicked()
+{
+    setTextProg("1");sound->play();
+}
+
+void MainWindow::on_two_prog_clicked()
+{
+    setTextProg("2");sound->play();
+}
+
+void MainWindow::on_three_prog_clicked()
+{
+    setTextProg("3");sound->play();
+}
+
+void MainWindow::on_four_prog_clicked()
+{
+    setTextProg("4");sound->play();
+}
+
+void MainWindow::on_five_prog_clicked()
+{
+    setTextProg("5");sound->play();
+}
+
+void MainWindow::on_six_prog_clicked()
+{
+    setTextProg("6");sound->play();
+}
+
+void MainWindow::on_seven_prog_clicked()
+{
+    setTextProg("7");sound->play();
+}
+
+void MainWindow::on_eight_prog_clicked()
+{
+    setTextProg("8");sound->play();
+}
+
+void MainWindow::on_nine_prog_clicked()
+{
+    setTextProg("9");sound->play();
+}
+
+void MainWindow::on_zero_prog_clicked()
+{
+    setTextProg("0");sound->play();
+}
+
+void MainWindow::on_n_complement_clicked()
+{
+
+}
+
+void MainWindow::on_n_complement_2_clicked()
+{
+
+}
+
+void MainWindow::on_calculate_prog_clicked()
+{
+    QString text=ui->output_prog->text();
+    ui->output_prog->setText(QString::number(text.toInt(),16));
+}
+
+void MainWindow::on_hexEdit_textChanged(const QString &arg1)//*****Make function for *(Base n) to Decimal. and use decimal to any base in Qt.
+{
+//    ui->hexEdit->setText(QString::number(arg1.toInt(),16));
+//    ui->decEdit->setText(QString::number(arg1.toInt(),10));
+//    ui->octEdit->setText(QString::number(arg1.toInt(),8));
+//    ui->binEdit->setText(QString::number(arg1.toInt(),2));
+}
+
+void MainWindow::on_decEdit_textChanged(const QString &arg1)
+{
+    bool ok;
+//    ui->hexEdit->setText(QString::number(arg1.toInt(),16));
+//    ui->decEdit->setText(QString::number(arg1.toInt(),10));
+    ui->octEdit->setText(QString::number(arg1.toInt(&ok,8),8));
+    ui->binEdit->setText(QString::number(arg1.toInt(&ok,2),2));
+}
+
+void MainWindow::on_octEdit_textChanged(const QString &arg1)
+{
+    bool ok;
+//    ui->hexEdit->setText(QString::number(arg1.toInt(),16));
+    ui->decEdit->setText(QString::number(arg1.toInt(),10));
+//    ui->octEdit->setText(QString::number(arg1.toInt(),8));
+    ui->binEdit->setText(QString::number(arg1.toInt(&ok,2),2));
+}
+
+void MainWindow::on_binEdit_textChanged(const QString &arg1)
+{
+bool ok;
+//    ui->hexEdit->setText(QString::number(arg1.toInt(),16));
+    ui->decEdit->setText(QString::number(arg1.toInt(),10));
+    ui->octEdit->setText(QString::number(arg1.toInt(&ok,8),8));
+//    ui->binEdit->setText(QString::number(arg1.toInt(),2));
 }
