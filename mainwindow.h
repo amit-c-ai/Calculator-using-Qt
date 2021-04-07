@@ -33,13 +33,16 @@ public:
     QStringList seperateTokens(QString input);
     double calculate(QString screen);
     double evaluate(QStack<QString> postfix);
+    double binaryTOdecimal(QString value);
+    qint64 octalTodecimal(QString value);
+    qint64 hexTodecimal(QString value);
 
 private slots:
     void on_calculate_clicked();
 
     void setText(QString text, int posIncrement);
 
-    void setTextProg(QString text, int posIncrement);
+    void setTextProg(QString text, int posIncrement, QString textbox);
 
     void on_add_clicked();
 
@@ -200,6 +203,16 @@ private slots:
     void on_octEdit_textChanged(const QString &arg1);
 
     void on_binEdit_textChanged(const QString &arg1);
+
+//    void on_output_prog_cursorPositionChanged(int arg1, int arg2);
+
+    void on_hexRadioButton_clicked();
+
+    void on_decRadioButton_clicked();
+
+    void on_octRadioButton_clicked();
+
+    void on_binRadioButton_clicked();
 
 private:
     Ui::MainWindow *ui;

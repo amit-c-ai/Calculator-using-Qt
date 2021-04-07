@@ -64,13 +64,27 @@ int MainWindow::precedence(QString op)
 void MainWindow::tokenReplacer(QStringList *original)
 {
     original->removeAll("");
+
+    if(original->contains("%")){
+        for(int i=1; i<original->length(); i++){
+            if(original->at(i)=="%"){
+                original->insert(i,"(");
+                original->replace(i+1, "0.01");
+                original->insert(i+2,")");
+            }
+        }
+    }
+
     if(original->contains("(")){
         for(int i=1; i<original->length(); i++){
-            if((original->at(i)=="(" && !isBOperator(original->at(i-1)) && !isUOperator(original->at(i-1))) || (original->at(i)=="(" && original->at(i-1)==")")){
+            if((original->at(i)=="(" && !isBOperator(original->at(i-1)) && !isUOperator(original->at(i-1))) || (original->at(i)=="(" && original->at(i-1)==")"))
                 original->insert(i,"*");
-            }
+
             else if(isUOperator(original->at(i)) && (!isBOperator(original->at(i-1)) && !isUOperator(original->at(i-1))))
                 original->insert(i,"*");
+
+            else if((i!=(original->length()-1) && (original->at(i)==")" && !isBOperator(original->at(i+1)) && !isUOperator(original->at(i+1)))) || ((i!=(original->length()-1)) && (original->at(i)==")" && original->at(i+1)=="(")))
+                original->insert(i+1,"*");
         }
     }
 
@@ -170,6 +184,7 @@ QStringList MainWindow::seperateTokens(QString input)//2*-1
     if(!temp.isEmpty())
        tokens.append(temp);
 
+    qDebug()<<tokens;
     tokenReplacer(&tokens);
 
     return tokens;
@@ -249,6 +264,7 @@ double MainWindow::evaluate(QStack<QString> postfix)
 }
 
 
+
 void MainWindow::on_calculate_clicked()
 {
         screen = ui->output->text();
@@ -276,19 +292,61 @@ void MainWindow::setText(QString text, int posIncrement=1)
     ui->output->setFocus();
 }
 
-void MainWindow::setTextProg(QString text, int posIncrement=1)
+void MainWindow::setTextProg(QString text, int posIncrement=1, QString textbox="decEdit")
 {
-    sound->setPosition(0);
-    if(sound->media()!=QMediaContent(QUrl("qrc:/soft.mp3")))
-    sound->setMedia(QMediaContent(QUrl("qrc:/soft.mp3")));
+    if(textbox=="hexEdit"){
+        sound->setPosition(0);
+        if(sound->media()!=QMediaContent(QUrl("qrc:/soft.mp3")))
+        sound->setMedia(QMediaContent(QUrl("qrc:/soft.mp3")));
 
-    QString temp;
-    int cPos = ui->output_prog->cursorPosition();
-    temp= ui->output_prog->text();
-    temp = temp.mid(0,cPos)+text+temp.mid(cPos,-1);
-    ui->output_prog->setText(temp);
-    ui->output_prog->setCursorPosition(cPos+posIncrement);
-    ui->output_prog->setFocus();
+        QString temp;
+        int cPos = ui->hexEdit->cursorPosition();
+        temp= ui->hexEdit->text();
+        temp = temp.mid(0,cPos)+text+temp.mid(cPos,-1);
+        ui->hexEdit->setText(temp);
+        ui->hexEdit->setCursorPosition(cPos+posIncrement);
+        ui->hexEdit->setFocus();
+    }
+    else if(textbox=="decEdit"){
+        sound->setPosition(0);
+        if(sound->media()!=QMediaContent(QUrl("qrc:/soft.mp3")))
+        sound->setMedia(QMediaContent(QUrl("qrc:/soft.mp3")));
+
+        QString temp;
+        int cPos = ui->decEdit->cursorPosition();
+        temp= ui->decEdit->text();
+        temp = temp.mid(0,cPos)+text+temp.mid(cPos,-1);
+        ui->decEdit->setText(temp);
+        ui->decEdit->setCursorPosition(cPos+posIncrement);
+        ui->decEdit->setFocus();
+    }
+    else if(textbox=="octEdit"){
+        sound->setPosition(0);
+        if(sound->media()!=QMediaContent(QUrl("qrc:/soft.mp3")))
+        sound->setMedia(QMediaContent(QUrl("qrc:/soft.mp3")));
+
+        QString temp;
+        int cPos = ui->octEdit->cursorPosition();
+        temp= ui->octEdit->text();
+        temp = temp.mid(0,cPos)+text+temp.mid(cPos,-1);
+        ui->octEdit->setText(temp);
+        ui->octEdit->setCursorPosition(cPos+posIncrement);
+        ui->octEdit->setFocus();
+    }
+    else if(textbox=="binEdit"){
+        sound->setPosition(0);
+        if(sound->media()!=QMediaContent(QUrl("qrc:/soft.mp3")))
+        sound->setMedia(QMediaContent(QUrl("qrc:/soft.mp3")));
+
+        QString temp;
+        int cPos = ui->binEdit->cursorPosition();
+        temp= ui->binEdit->text();
+        temp = temp.mid(0,cPos)+text+temp.mid(cPos,-1);
+        ui->binEdit->setText(temp);
+        ui->binEdit->setCursorPosition(cPos+posIncrement);
+        ui->binEdit->setFocus();
+    }
+
 }
 
 void MainWindow::on_add_clicked()
@@ -400,8 +458,6 @@ void MainWindow::on_back_clicked()
     ui->output->setFocus();
     sound->play();
 }
-
-
 
 void MainWindow::on_power_clicked()
 {
@@ -545,37 +601,39 @@ void MainWindow::on_radians_toggled(bool checked)
 void MainWindow::on_comboBox_activated(int index)
 {
     ui->stackedWidget->setCurrentIndex(index);
-
 }
+
+
+//############## Programing Calculator Part ##################
 
 void MainWindow::on_and_prog_clicked()
 {
-    setTextProg("AND");sound->play();
+    setTextProg("AND",3);sound->play();
 }
 
 void MainWindow::on_or_prog_clicked()
 {
-    setTextProg("OR");sound->play();
+    setTextProg("OR",2);sound->play();
 }
 
 void MainWindow::on_not_prog_clicked()
 {
-    setTextProg("NOT");sound->play();
+    setTextProg("NOT",3);sound->play();
 }
 
 void MainWindow::on_nand_prog_clicked()
 {
-    setTextProg("NAND");sound->play();
+    setTextProg("NAND",4);sound->play();
 }
 
 void MainWindow::on_nor_prog_clicked()
 {
-    setTextProg("NOR");sound->play();
+    setTextProg("NOR",3);sound->play();
 }
 
 void MainWindow::on_exor_prog_clicked()
 {
-    setTextProg("XOR");sound->play();
+    setTextProg("XOR",3);sound->play();
 }
 
 void MainWindow::on_a_prog_clicked()
@@ -613,12 +671,18 @@ void MainWindow::on_clear_prog_clicked()
     if(sound->media()!=QMediaContent(QUrl("qrc:/soft.mp3")))
     sound->setMedia(QMediaContent(QUrl("qrc:/soft.mp3")));
     sound->play();
-    ui->output_prog->clear();
+    ui->hexEdit->clear();
 }
 
 void MainWindow::on_back_prog_clicked()
 {
-
+    screen=ui->hexEdit->text();
+    int cPos = ui->hexEdit->cursorPosition();
+    screen = screen.remove(cPos-1,1);
+    ui->hexEdit->setText(screen);
+    ui->hexEdit->setCursorPosition(cPos-1);
+    ui->hexEdit->setFocus();
+    sound->play();
 }
 
 void MainWindow::on_add_prog_clicked()
@@ -724,40 +788,106 @@ void MainWindow::on_n_complement_2_clicked()
 void MainWindow::on_calculate_prog_clicked()
 {
     QString text=ui->output_prog->text();
-    ui->output_prog->setText(QString::number(text.toInt(),16));
+//    ui->output_prog->setText(QString::number(text.toInt(),16));
 }
 
 void MainWindow::on_hexEdit_textChanged(const QString &arg1)//*****Make function for *(Base n) to Decimal. and use decimal to any base in Qt.
 {
-//    ui->hexEdit->setText(QString::number(arg1.toInt(),16));
-//    ui->decEdit->setText(QString::number(arg1.toInt(),10));
-//    ui->octEdit->setText(QString::number(arg1.toInt(),8));
-//    ui->binEdit->setText(QString::number(arg1.toInt(),2));
+    qint64 decimal=hexTodecimal(arg1.toUpper());
+    qDebug()<<"decimal: "<<decimal;
+    ui->decEdit->setText(QString::number(decimal));
+    ui->octEdit->setText(QString::number(decimal,8));
+    ui->binEdit->setText(QString::number(decimal,2));
 }
 
 void MainWindow::on_decEdit_textChanged(const QString &arg1)
 {
-    bool ok;
-//    ui->hexEdit->setText(QString::number(arg1.toInt(),16));
-//    ui->decEdit->setText(QString::number(arg1.toInt(),10));
-    ui->octEdit->setText(QString::number(arg1.toInt(&ok,8),8));
-    ui->binEdit->setText(QString::number(arg1.toInt(&ok,2),2));
+    ui->hexEdit->setText(QString::number(arg1.toInt(),16));
+    qDebug()<<"hex: "<<QString::number(arg1.toInt(),16);
+    ui->octEdit->setText(QString::number(arg1.toInt(),8));
+    ui->binEdit->setText(QString::number(arg1.toInt(),2));
 }
 
 void MainWindow::on_octEdit_textChanged(const QString &arg1)
 {
-    bool ok;
-//    ui->hexEdit->setText(QString::number(arg1.toInt(),16));
-    ui->decEdit->setText(QString::number(arg1.toInt(),10));
-//    ui->octEdit->setText(QString::number(arg1.toInt(),8));
-    ui->binEdit->setText(QString::number(arg1.toInt(&ok,2),2));
+    qint64 decimal= octalTodecimal(arg1);
+    ui->decEdit->setText(QString::number(decimal));
+    ui->hexEdit->setText(QString::number(decimal,16));
+    ui->binEdit->setText(QString::number(decimal,2));
 }
 
 void MainWindow::on_binEdit_textChanged(const QString &arg1)
 {
-bool ok;
-//    ui->hexEdit->setText(QString::number(arg1.toInt(),16));
-    ui->decEdit->setText(QString::number(arg1.toInt(),10));
-    ui->octEdit->setText(QString::number(arg1.toInt(&ok,8),8));
-//    ui->binEdit->setText(QString::number(arg1.toInt(),2));
+    qint64 decimal= binaryTOdecimal(arg1);
+    ui->decEdit->setText(QString::number(decimal));
+    ui->octEdit->setText(QString::number(decimal,8));
+    ui->hexEdit->setText(QString::number(decimal,16));
+}
+
+//void MainWindow::on_output_prog_cursorPositionChanged(int arg1, int arg2)
+//{
+
+//}
+
+double MainWindow::binaryTOdecimal(QString value)
+{
+    double sum=0;
+    int len=value.length();
+    qint64 num=value.toLongLong();
+    for(int i=len-1; i>=0; i--){
+        sum = sum + num % 10 * pow(2,(len-1-i));
+        num=num/10;
+    }
+    return sum;
+}
+
+qint64 MainWindow::octalTodecimal(QString value)
+{
+    qint64 sum=0;
+    int len=value.length();
+    qint64 num=value.toLongLong();
+    for(int i=len-1; i>=0; i--){
+        sum = sum + num % 10 * pow(8,(len-1-i));
+        num=num/10;
+    }
+    return sum;
+}
+
+qint64 MainWindow::hexTodecimal(QString value)
+{
+    int len=value.length();
+    qint64 sum=0;
+    for (int i=len-1; i>=0; i--) {
+       if (isDigit(value[i])) {
+          sum += (value[i].toLatin1() - 48)*pow(16,len-1-i);
+       }
+       else if (value[i]>='A' && value[i]<='F') {
+          sum += (value[i].toLatin1() - 55)*pow(16,len-1-i);
+       }
+    }
+    return sum;
+}
+
+void MainWindow::on_hexRadioButton_clicked()
+{
+    QString textbox = "hexEdit";
+    setTextProg(textbox);
+}
+
+void MainWindow::on_decRadioButton_clicked()
+{
+    QString textbox = "decEdit";
+    setTextProg(textbox);
+}
+
+void MainWindow::on_octRadioButton_clicked()
+{
+    QString textbox = "octEdit";
+    setTextProg(textbox);
+}
+
+void MainWindow::on_binRadioButton_clicked()
+{
+    QString textbox = "binEdit";
+    setTextProg(textbox);
 }
