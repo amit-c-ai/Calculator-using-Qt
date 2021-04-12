@@ -292,61 +292,34 @@ void MainWindow::setText(QString text, int posIncrement=1)
     ui->output->setFocus();
 }
 
-void MainWindow::setTextProg(QString text, int posIncrement=1, QString textbox="decEdit")
+void MainWindow::setTextProg(QString text, int posIncrement=1)
 {
-    if(textbox=="hexEdit"){
-        sound->setPosition(0);
-        if(sound->media()!=QMediaContent(QUrl("qrc:/soft.mp3")))
-        sound->setMedia(QMediaContent(QUrl("qrc:/soft.mp3")));
-
-        QString temp;
-        int cPos = ui->hexEdit->cursorPosition();
-        temp= ui->hexEdit->text();
-        temp = temp.mid(0,cPos)+text+temp.mid(cPos,-1);
-        ui->hexEdit->setText(temp);
-        ui->hexEdit->setCursorPosition(cPos+posIncrement);
-        ui->hexEdit->setFocus();
+    QLineEdit *focusField=new QLineEdit();
+    if(ui->hexEdit->hasFocus()){
+        focusField=ui->hexEdit;
+        qDebug()<<"hexfocused";
     }
-    else if(textbox=="decEdit"){
-        sound->setPosition(0);
-        if(sound->media()!=QMediaContent(QUrl("qrc:/soft.mp3")))
-        sound->setMedia(QMediaContent(QUrl("qrc:/soft.mp3")));
-
-        QString temp;
-        int cPos = ui->decEdit->cursorPosition();
-        temp= ui->decEdit->text();
-        temp = temp.mid(0,cPos)+text+temp.mid(cPos,-1);
-        ui->decEdit->setText(temp);
-        ui->decEdit->setCursorPosition(cPos+posIncrement);
-        ui->decEdit->setFocus();
+    if(ui->decEdit->hasFocus()){
+        focusField=ui->decEdit;
     }
-    else if(textbox=="octEdit"){
-        sound->setPosition(0);
-        if(sound->media()!=QMediaContent(QUrl("qrc:/soft.mp3")))
-        sound->setMedia(QMediaContent(QUrl("qrc:/soft.mp3")));
-
-        QString temp;
-        int cPos = ui->octEdit->cursorPosition();
-        temp= ui->octEdit->text();
-        temp = temp.mid(0,cPos)+text+temp.mid(cPos,-1);
-        ui->octEdit->setText(temp);
-        ui->octEdit->setCursorPosition(cPos+posIncrement);
-        ui->octEdit->setFocus();
+    if(ui->octEdit->hasFocus()){
+        focusField=ui->octEdit;
     }
-    else if(textbox=="binEdit"){
-        sound->setPosition(0);
-        if(sound->media()!=QMediaContent(QUrl("qrc:/soft.mp3")))
-        sound->setMedia(QMediaContent(QUrl("qrc:/soft.mp3")));
-
-        QString temp;
-        int cPos = ui->binEdit->cursorPosition();
-        temp= ui->binEdit->text();
-        temp = temp.mid(0,cPos)+text+temp.mid(cPos,-1);
-        ui->binEdit->setText(temp);
-        ui->binEdit->setCursorPosition(cPos+posIncrement);
-        ui->binEdit->setFocus();
+    if(ui->binEdit->hasFocus()){
+        focusField=ui->binEdit;
     }
 
+    sound->setPosition(0);
+    if(sound->media()!=QMediaContent(QUrl("qrc:/soft.mp3")))
+    sound->setMedia(QMediaContent(QUrl("qrc:/soft.mp3")));
+
+    QString temp;
+    int cPos = focusField->cursorPosition();
+    temp= focusField->text();
+    temp = temp.mid(0,cPos)+text+temp.mid(cPos,-1);
+    focusField->setText(temp);
+    focusField->setCursorPosition(cPos+posIncrement);
+    focusField->setFocus();
 }
 
 void MainWindow::on_add_clicked()
@@ -426,7 +399,28 @@ void MainWindow::on_divide_clicked()
 
 void MainWindow::on_percentage_clicked()
 {
-    setText("%");sound->play();
+    int start=-1;
+    QString temp;
+    QString text = ui->output->text();
+    int cPos=ui->output->cursorPosition();
+    qDebug()<<cPos;
+    for(int i=cPos-1; i>=0; i--){
+        if(!isDigit(text[i])){
+            start=i;
+            break;
+        }
+    }
+    qDebug()<<"start: "<<start+1<<"end: "<<cPos-1;
+    for(int i=start+1; i<=cPos-1; i++){
+        temp+=text[i];
+    }
+    text.remove(start+1,cPos-start);
+    long num = temp.toLong();
+    QString s = QString::number(num/100.0);
+    text.append(s);
+    ui->output->setText(text);
+
+//    setText("%");sound->play();
 }
 
 void MainWindow::on_openBracket_clicked()
@@ -435,9 +429,7 @@ void MainWindow::on_openBracket_clicked()
 }
 void MainWindow::on_closeBracket_clicked()
 {
-//    QString temp;
-//    temp= ui->output->text() + ")";
-//    ui->output->setText(temp);
+    setText(")");sound->play();
 }
 
 void MainWindow::on_clear_clicked()
@@ -579,9 +571,21 @@ void MainWindow::on_square_clicked()
     setText("^2", 2);sound->play();
 }
 
-
+void MainWindow::on_mod_clicked()
+{
+    QString num = ui->output->text();
+    long temp = num.toLong();
+    QString s = QString::number(abs(temp));
+    if(s!='0')
+        ui->output->setText(s);
+}
 
 void MainWindow::on_horizontalSlider_valueChanged(int value)
+{
+    setWindowOpacity(value/100.0);
+}
+
+void MainWindow::on_horizontalSlider_2_valueChanged(int value)
 {
     setWindowOpacity(value/100.0);
 }
@@ -668,20 +672,48 @@ void MainWindow::on_f_prog_clicked()
 
 void MainWindow::on_clear_prog_clicked()
 {
+    QLineEdit *focusField=new QLineEdit();
+    if(ui->hexEdit->hasFocus()){
+        focusField=ui->hexEdit;;
+    }
+    if(ui->decEdit->hasFocus()){
+        focusField=ui->decEdit;
+    }
+    if(ui->octEdit->hasFocus()){
+        focusField=ui->octEdit;
+    }
+    if(ui->binEdit->hasFocus()){
+        focusField=ui->binEdit;
+    }
+
     if(sound->media()!=QMediaContent(QUrl("qrc:/soft.mp3")))
     sound->setMedia(QMediaContent(QUrl("qrc:/soft.mp3")));
     sound->play();
-    ui->hexEdit->clear();
+    focusField->clear();
 }
 
 void MainWindow::on_back_prog_clicked()
 {
-    screen=ui->hexEdit->text();
-    int cPos = ui->hexEdit->cursorPosition();
+    QLineEdit *focusField=new QLineEdit();
+    if(ui->hexEdit->hasFocus()){
+        focusField=ui->hexEdit;;
+    }
+    if(ui->decEdit->hasFocus()){
+        focusField=ui->decEdit;
+    }
+    if(ui->octEdit->hasFocus()){
+        focusField=ui->octEdit;
+    }
+    if(ui->binEdit->hasFocus()){
+        focusField=ui->binEdit;
+    }
+
+    screen=focusField->text();
+    int cPos = focusField->cursorPosition();
     screen = screen.remove(cPos-1,1);
-    ui->hexEdit->setText(screen);
-    ui->hexEdit->setCursorPosition(cPos-1);
-    ui->hexEdit->setFocus();
+    focusField->setText(screen);
+    focusField->setCursorPosition(cPos-1);
+    focusField->setFocus();
     sound->play();
 }
 
@@ -788,7 +820,6 @@ void MainWindow::on_n_complement_2_clicked()
 void MainWindow::on_calculate_prog_clicked()
 {
     QString text=ui->output_prog->text();
-//    ui->output_prog->setText(QString::number(text.toInt(),16));
 }
 
 void MainWindow::on_hexEdit_textChanged(const QString &arg1)//*****Make function for *(Base n) to Decimal. and use decimal to any base in Qt.
@@ -802,7 +833,7 @@ void MainWindow::on_hexEdit_textChanged(const QString &arg1)//*****Make function
 
 void MainWindow::on_decEdit_textChanged(const QString &arg1)
 {
-    ui->hexEdit->setText(QString::number(arg1.toInt(),16));
+    ui->hexEdit->setText(QString::number(arg1.toInt(),16).toUpper());
     qDebug()<<"hex: "<<QString::number(arg1.toInt(),16);
     ui->octEdit->setText(QString::number(arg1.toInt(),8));
     ui->binEdit->setText(QString::number(arg1.toInt(),2));
@@ -812,7 +843,7 @@ void MainWindow::on_octEdit_textChanged(const QString &arg1)
 {
     qint64 decimal= octalTodecimal(arg1);
     ui->decEdit->setText(QString::number(decimal));
-    ui->hexEdit->setText(QString::number(decimal,16));
+    ui->hexEdit->setText(QString::number(decimal,16).toUpper());
     ui->binEdit->setText(QString::number(decimal,2));
 }
 
@@ -821,13 +852,8 @@ void MainWindow::on_binEdit_textChanged(const QString &arg1)
     qint64 decimal= binaryTOdecimal(arg1);
     ui->decEdit->setText(QString::number(decimal));
     ui->octEdit->setText(QString::number(decimal,8));
-    ui->hexEdit->setText(QString::number(decimal,16));
+    ui->hexEdit->setText(QString::number(decimal,16).toUpper());
 }
-
-//void MainWindow::on_output_prog_cursorPositionChanged(int arg1, int arg2)
-//{
-
-//}
 
 double MainWindow::binaryTOdecimal(QString value)
 {
@@ -868,26 +894,8 @@ qint64 MainWindow::hexTodecimal(QString value)
     return sum;
 }
 
-void MainWindow::on_hexRadioButton_clicked()
-{
-    QString textbox = "hexEdit";
-    setTextProg(textbox);
-}
 
-void MainWindow::on_decRadioButton_clicked()
-{
-    QString textbox = "decEdit";
-    setTextProg(textbox);
-}
 
-void MainWindow::on_octRadioButton_clicked()
-{
-    QString textbox = "octEdit";
-    setTextProg(textbox);
-}
 
-void MainWindow::on_binRadioButton_clicked()
-{
-    QString textbox = "binEdit";
-    setTextProg(textbox);
-}
+
+

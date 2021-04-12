@@ -42,7 +42,7 @@ private slots:
 
     void setText(QString text, int posIncrement);
 
-    void setTextProg(QString text, int posIncrement, QString textbox);
+    void setTextProg(QString text, int posIncrement);
 
     void on_add_clicked();
 
@@ -206,13 +206,10 @@ private slots:
 
 //    void on_output_prog_cursorPositionChanged(int arg1, int arg2);
 
-    void on_hexRadioButton_clicked();
 
-    void on_decRadioButton_clicked();
+    void on_mod_clicked();
 
-    void on_octRadioButton_clicked();
-
-    void on_binRadioButton_clicked();
+    void on_horizontalSlider_2_valueChanged(int value);
 
 private:
     Ui::MainWindow *ui;
