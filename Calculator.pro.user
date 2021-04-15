@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 4.13.1, 2021-04-12T17:30:48. -->
+<!-- Written by QtCreator 4.13.1, 2021-04-15T16:57:49. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -634,7 +634,6 @@
     <valuelist type="QVariantList" key="CustomOutputParsers"/>
     <value type="int" key="PE.EnvironmentAspect.Base">0</value>
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">Calculator</value>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.AndroidRunConfiguration:D:/github_data/Calculator-using-Qt/Calculator.pro</value>
     <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">D:/github_data/Calculator-using-Qt/Calculator.pro</value>
     <value type="QString" key="RunConfiguration.Arguments"></value>
@@ -1243,7 +1242,6 @@
     <valuelist type="QVariantList" key="CustomOutputParsers"/>
     <value type="int" key="PE.EnvironmentAspect.Base">0</value>
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">Calculator</value>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.AndroidRunConfiguration:D:/github_data/Calculator-using-Qt/Calculator.pro</value>
     <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">D:/github_data/Calculator-using-Qt/Calculator.pro</value>
     <value type="QString" key="RunConfiguration.Arguments"></value>

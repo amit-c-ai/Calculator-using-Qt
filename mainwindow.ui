@@ -47,6 +47,42 @@ border-radius : 10px;
    <layout class="QGridLayout" name="gridLayout_11">
     <item row="0" column="0">
      <layout class="QGridLayout" name="gridLayout_10">
+      <item row="0" column="0">
+       <widget class="QComboBox" name="comboBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="font">
+         <font>
+          <family>Gill Sans MT Condensed</family>
+          <pointsize>16</pointsize>
+         </font>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QComboBox#comboBox{
+color:white;
+background-color:#6f6f6f;  
+border-radius:10px;
+}</string>
+        </property>
+        <item>
+         <property name="text">
+          <string>Arithmetic Calculator</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Programming Calculator</string>
+         </property>
+        </item>
+       </widget>
+      </item>
       <item row="1" column="0">
        <widget class="QStackedWidget" name="stackedWidget">
         <property name="styleSheet">
@@ -60,7 +96,7 @@ border-radius: 15px;
 }</string>
         </property>
         <property name="currentIndex">
-         <number>1</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="page">
          <layout class="QGridLayout" name="gridLayout_7">
@@ -3388,42 +3424,6 @@ text-align: center;
           </item>
          </layout>
         </widget>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QComboBox" name="comboBox">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="font">
-         <font>
-          <family>Gill Sans MT Condensed</family>
-          <pointsize>16</pointsize>
-         </font>
-        </property>
-        <property name="layoutDirection">
-         <enum>Qt::LeftToRight</enum>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">QComboBox#comboBox{
-color:white;
-background-color:#6f6f6f;  
-border-radius:10px;
-}</string>
-        </property>
-        <item>
-         <property name="text">
-          <string>Arithmetic Calculator</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Programming Calculator</string>
-         </property>
-        </item>
        </widget>
       </item>
      </layout>
